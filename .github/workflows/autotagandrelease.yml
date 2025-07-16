@@ -13,6 +13,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Generate changelog from commits
+        id: changelog
+        run: |
+          latest_tag="${{ steps.get_tag.outputs.tag }}"
+          if git rev-parse "$latest_tag" >/dev/null 2>&1; then
+            changelog=$(git log "$latest_tag"..HEAD --pretty=format:"- %s (%an)" --no-merges)
+          else
+            changelog=$(git log --pretty=format:"- %s (%an)" --no-merges)
+          fi
+          echo "changelog<<EOF" >> $GITHUB_ENV
+          echo "$changelog" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+
       - name: Set up Git config
         run: |
           git config user.name "github-actions"
