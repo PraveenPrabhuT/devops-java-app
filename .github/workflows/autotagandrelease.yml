@@ -50,12 +50,18 @@ jobs:
           echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
 
       - name: Generate changelog from commits
-        id: changelog
+        id: generate_changelog
         run: |
-          changelog=$(git log ${{ steps.get_tag.outputs.tag }}..HEAD --pretty=format:"- %s (%an)" --no-merges)
-          echo "changelog<<EOF" >> $GITHUB_ENV
-          echo "$changelog" >> $GITHUB_ENV
+          latest_tag="${{ steps.get_tag.outputs.tag }}"
+          if git rev-parse "$latest_tag" >/dev/null 2>&1; then
+            notes=$(git log "$latest_tag"..HEAD --pretty=format:"- %s (%an)" --no-merges)
+          else
+            notes=$(git log --pretty=format:"- %s (%an)" --no-merges)
+          fi
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          echo "$notes" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+
 
       - name: Create Git tag
         run: |
@@ -67,4 +73,4 @@ jobs:
         with:
           tag_name: ${{ steps.bump.outputs.new_tag }}
           name: Release ${{ steps.bump.outputs.new_tag }}
-          body: ${{ env.changelog }}
+          body: ${{ env.RELEASE_NOTES }}
