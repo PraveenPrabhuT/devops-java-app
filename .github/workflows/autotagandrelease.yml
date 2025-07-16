@@ -3,7 +3,7 @@ name: Auto Tag & Release
 on:
   push:
     branches: [main]
-  workflow_dispatch: # allows manual run from GitHub UI
+  workflow_dispatch:
 
 jobs:
   release:
@@ -22,16 +22,17 @@ jobs:
         id: get_tag
         run: |
           latest=$(git describe --tags --abbrev=0 || echo "v0.0.0")
+          echo "Latest tag: $latest"
           echo "tag=$latest" >> $GITHUB_OUTPUT
 
       - name: Bump patch version
         id: bump
         run: |
-          IFS='.' read -r -a parts <<< "${{ steps.get_tag.outputs.tag#v }}"
-          major="${parts[0]}"
-          minor="${parts[1]}"
-          patch="${parts[2]}"
+          tag="${{ steps.get_tag.outputs.tag }}"
+          version="${tag#v}" # remove 'v' prefix
+          IFS='.' read -r major minor patch <<< "$version"
           new_tag="v$major.$minor.$((patch + 1))"
+          echo "New tag: $new_tag"
           echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
 
       - name: Generate changelog from commits
