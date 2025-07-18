@@ -18,7 +18,7 @@ RUN --mount=type=cache,target=.m2 mvn clean install -DskipTests=true
 
 FROM public.ecr.aws/amazoncorretto/amazoncorretto:17-al2023-headless
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /usr/app/target/*.jar app.jar
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
