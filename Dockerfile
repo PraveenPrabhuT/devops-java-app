@@ -7,8 +7,7 @@ FROM dependency as build
 WORKDIR /usr/app
 COPY pom.xml .
 COPY src src
-WORKDIR /usr/app
-RUN --mount=type=cache,target=.m2 mvn clean install -DskipTests=true
+RUN --mount=type=cache,target=.m2 mvn clean install -DskipTests=true && ls -alh target
 
 #FROM public.ecr.aws/docker/library/maven:3.9.6-eclipse-temurin-17 AS build
 #WORKDIR /app
