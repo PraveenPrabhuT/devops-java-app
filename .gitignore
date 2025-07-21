@@ -40,3 +40,4 @@ build/
 .env
 result
 result-*
+terraform/.terraform
