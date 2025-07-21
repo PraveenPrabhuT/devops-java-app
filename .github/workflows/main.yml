@@ -72,7 +72,7 @@ jobs:
             docker stop myapp || true
             docker rm myapp || true
             docker pull docker pull ghcr.io/praveenprabhut/devops-java-app:latest
-            docker run -d --name myapp -p 80:8000 ghcr.io/praveenprabhut/devops-java-app:latest
+            docker run -d --name myapp -p 80:8080 ghcr.io/praveenprabhut/devops-java-app:latest
           EOF
           
  
