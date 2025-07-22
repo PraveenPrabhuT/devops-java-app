@@ -66,47 +66,43 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform Init
-        run: terraform init
-        working-directory: terraform
-  
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
-        working-directory: terraform
-
-
-#      - name: Get EC2 public IP
-#        id: ec2
-#        run: |
-#          ip=$(aws ec2 describe-instances \
-#            --filters "Name=tag:Name,Values=Docker-Host" \
-#            --query "Reservations[0].Instances[0].PublicIpAddress" \
-#            --output text)
-#          echo "EC2_IP=$ip" >> $GITHUB_ENV
-#          echo "::add-mask::$ip"
-
-#      - name: Save Private Key
-#        run: |
-#          echo "${{ secrets.EC2_KEY }}" > ec2_key.pem
-#          chmod 600 ec2_key.pem
-        
-#      - name: Set up SSH
-#        run: |
-#          mkdir -p ~/.ssh
-#          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-#          chmod 600 ~/.ssh/id_rsa
-#          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+#      - name: Setup Terraform
+#        uses: hashicorp/setup-terraform@v3
+#
+#      - name: Terraform Init
+#        run: terraform init
+#        working-directory: terraform
 #  
-#      - name: Deploy to EC2 via SSH
-#        run: |
-#          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-#            docker stop myapp || true
-#            docker rm myapp || true
-#           docker pull docker pull ghcr.io/praveenprabhut/devops-java-app:latest
-#            docker run -d --name myapp -p 80:8080 ghcr.io/praveenprabhut/devops-java-app:latest
-#          EOF
+#      - name: Terraform Apply
+#        run: terraform apply -auto-approve
+#        working-directory: terraform
+
+
+      - name: Get EC2 public IP
+        id: ec2
+        run: |
+          ip=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=Docker-Host" \
+            --query "Reservations[0].Instances[0].PublicIpAddress" \
+            --output text)
+          echo "EC2_IP=$ip" >> $GITHUB_ENV
+          echo "::add-mask::$ip"
+
+        
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+  
+      - name: Deploy to EC2 via SSH
+        run: |
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            docker stop myapp || true
+            docker rm myapp || true
+            docker pull docker pull ghcr.io/praveenprabhut/devops-java-app:latest
+            docker run -d --name myapp -p 80:8080 ghcr.io/praveenprabhut/devops-java-app:latest
+          EOF
           
  
