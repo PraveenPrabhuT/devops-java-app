@@ -36,9 +36,15 @@ EOT
   }
 }
 
+
+resource "tls_private_key" "ec2_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
 resource "aws_key_pair" "ec2_key" {
-  key_name   = "my-ec2-key"
-  public_key = file("~/.ssh/my-ec2-key.pub")
+  key_name   = "my-generated-ec2-key"
+  public_key = tls_private_key.ec2_key.public_key_openssh
 }
 
 output "ec2_public_ip" {
